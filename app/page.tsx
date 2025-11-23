@@ -7,7 +7,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Hero Section */}
       <section className="flex flex-col items-center justify-center text-center pt-32 pb-20 px-4">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -43,7 +42,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Features Section */}
       <section className="px-6 md:px-20 py-20 grid md:grid-cols-3 gap-10">
         <motion.div
           whileHover={{ scale: 1.03 }}
@@ -82,7 +80,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Supported Content Types */}
       <section className="py-20 bg-zinc-950 px-6 md:px-20">
         <h2 className="text-4xl font-bold text-center mb-12">
           What SynapSphere Understands
@@ -124,7 +121,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="text-center py-10 text-gray-500">
         © {new Date().getFullYear()} SynapSphere — Your Second Brain.
       </footer>
