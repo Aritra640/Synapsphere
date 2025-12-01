@@ -18,7 +18,7 @@ export default function Signup() {
         name: name,
         email: email,
         password: password,
-        callbackURL: "/dashboard",
+        callbackURL: "/home/dashboard",
       },
       {
         onRequest: (ctx) => {
@@ -27,7 +27,7 @@ export default function Signup() {
         },
         onSuccess: (ctx) => {
 
-          redirect('/dashboard');
+          redirect('/home/dashboard');
         },
         onError: (ctx) => {
           console.log(ctx.error);

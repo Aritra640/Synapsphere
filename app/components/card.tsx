@@ -1,21 +1,50 @@
+"use client";
+
 import { Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { UpdateCardModal } from "@/app/components/updateCardModal";
 
 interface CardProps {
+  id: string;
   Type: "Youtube" | "Tweet" | "Text" | "PDF";
   Title: string;
   Content: string;
-  CreatedAt: Date;
+  CreatedAt: string; 
 }
 
-export default function Card({ Type, Title, Content, CreatedAt }: CardProps) {
+export default function Card({ id, Type, Title, Content, CreatedAt }: CardProps) {
+  const router = useRouter();
+  const [updateOpen, setUpdateOpen] = useState(false);
+
+  const dateObj = new Date(CreatedAt);
+  const date = dateObj.toISOString().split("T")[0];
+  const time = dateObj.toISOString().split("T")[1].slice(0, 5);
+
+  const handleDelete = async () => {
+    try {
+      const res = await fetch("/api/protected/cards", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        console.log("Failed to delete card:", data);
+        return;
+      }
+
+      router.refresh();
+    } catch (err) {
+      console.log("Delete error:", err);
+    }
+  };
+
   const renderPreview = () => {
     switch (Type) {
       case "Text":
-        return (
-          <p className="text-gray-300 text-sm line-clamp-3">
-            {Content}
-          </p>
-        );
+        return <p className="text-gray-300 text-sm line-clamp-3">{Content}</p>;
 
       case "Youtube": {
         const videoId =
@@ -33,7 +62,7 @@ export default function Card({ Type, Title, Content, CreatedAt }: CardProps) {
       case "Tweet":
         return (
           <blockquote className="twitter-tweet">
-            <a href={`https://twitter.com/user/status/${Content}`}></a>
+            <a href={`https://twitter.com/user/status/${Content}`} />
           </blockquote>
         );
 
@@ -52,30 +81,40 @@ export default function Card({ Type, Title, Content, CreatedAt }: CardProps) {
   };
 
   return (
-    <div className="relative bg-black border border-gray-800 rounded-xl p-4 shadow-lg hover:shadow-gray-700 transition-shadow duration-300 w-full max-w-md">
+    <>
+      <div className="relative bg-black border border-gray-800 rounded-xl p-4 shadow-lg hover:shadow-gray-700 transition-shadow duration-300 w-full max-w-md">
 
-      <div className="absolute top-3 right-3 flex space-x-3">
-        <button aria-label="Edit">
-          <Pencil className="w-4 h-4 cursor-pointer text-gray-400 hover:text-blue-400 transition" />
-        </button>
-        <button aria-label="Delete">
-          <Trash2 className="w-4 h-4 cursor-pointer text-gray-400 hover:text-red-400 transition" />
-        </button>
+        <div className="absolute top-3 right-3 flex space-x-3">
+          <button aria-label="Edit" onClick={() => setUpdateOpen(true)}>
+            <Pencil className="w-4 h-4 cursor-pointer text-gray-400 hover:text-blue-400 transition" />
+          </button>
+
+          <button aria-label="Delete" onClick={handleDelete}>
+            <Trash2 className="w-4 h-4 cursor-pointer text-gray-400 hover:text-red-400 transition" />
+          </button>
+        </div>
+
+        <h3 className="text-white text-lg font-semibold mb-2 pr-12 line-clamp-1">
+          {Title}
+        </h3>
+
+        <div className="mb-3">{renderPreview()}</div>
+
+        <p className="text-gray-500 text-xs mt-2">
+          {date} • {time}
+        </p>
       </div>
 
-      <h3 className="text-white text-lg font-semibold mb-2 pr-12 line-clamp-1">
-        {Title}
-      </h3>
-
-      {/* Preview */}
-      <div className="mb-3">{renderPreview()}</div>
-
-      {/* Created Time */}
-      <p className="text-gray-500 text-xs mt-2">
-        {new Date(CreatedAt).toLocaleDateString()} •{" "}
-        {new Date(CreatedAt).toLocaleTimeString()}
-      </p>
-    </div>
+      {updateOpen && (
+        <UpdateCardModal
+          id={id}
+          initialTitle={Title}
+          initialType={Type}
+          initialContent={Content}
+          onClose={() => setUpdateOpen(false)}
+        />
+      )}
+    </>
   );
 }
 

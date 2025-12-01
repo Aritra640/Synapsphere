@@ -2,17 +2,56 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function NewCardModal() {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("Text");
   const [fileName, setFileName] = useState("");
+  const [titleValue, setTitleValue] = useState("");
+  const [contentValue, setContentValue] = useState("");
+
+  const router = useRouter(); // For refreshing dashboard after add
 
   const placeholderMap: Record<string, string> = {
     Text: "Enter text...",
     Youtube: "Enter YouTube video URL...",
     Tweet: "Enter Tweet URL...",
     pdf: "Upload PDF file...",
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const actualContent = type === "pdf" ? fileName : contentValue;
+
+    if (!titleValue || !actualContent) return;
+
+    try {
+      const res = await fetch("/api/protected/cards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: titleValue,
+          content: actualContent,
+          type,
+        }),
+      });
+
+      if (!res.ok) return;
+
+      // Smooth close and refresh without popup
+      setOpen(false);
+      setTitleValue("");
+      setContentValue("");
+      setFileName("");
+      setType("Text");
+
+      router.refresh(); // refresh dashboard instantly
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -36,15 +75,15 @@ export function NewCardModal() {
           >
             <h2 className="text-lg font-semibold mb-4">Create New Card</h2>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-sm text-gray-300 mb-1">
-                  Title
-                </label>
+                <label className="block text-sm text-gray-300 mb-1">Title</label>
                 <input
                   type="text"
                   className="w-full px-3 py-2 cursor-pointer rounded-md bg-gray-800 border border-gray-700 focus:border-purple-500 focus:outline-none"
                   placeholder="Enter title"
+                  value={titleValue}
+                  onChange={(e) => setTitleValue(e.target.value)}
                 />
               </div>
 
@@ -68,9 +107,8 @@ export function NewCardModal() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-300 mb-1">
-                  Content
-                </label>
+                <label className="block text-sm text-gray-300 mb-1">Content</label>
+
                 {type === "pdf" ? (
                   <label className="block w-full">
                     <div className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-400 cursor-pointer text-sm flex items-center justify-between">
@@ -94,6 +132,8 @@ export function NewCardModal() {
                     rows={4}
                     className="w-full cursor-pointer px-3 py-2 rounded-md bg-gray-800 border border-gray-700 focus:border-purple-500 focus:outline-none"
                     placeholder={placeholderMap[type]}
+                    value={contentValue}
+                    onChange={(e) => setContentValue(e.target.value)}
                   />
                 )}
               </div>
@@ -105,9 +145,11 @@ export function NewCardModal() {
                 Create Card
               </button>
             </form>
+
           </div>
         </div>
       )}
     </>
   );
 }
+

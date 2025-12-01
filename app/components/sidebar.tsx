@@ -4,11 +4,28 @@ import { useState } from "react";
 import { Home, Share2, MessageSquare, Brain, Menu, X } from "lucide-react";
 import Signout from "./signout";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import ScrollerLoader from "./scroller";
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("Dashboard");
   const router = useRouter();
+
+  const { data: session, isPending, error, refetch } = authClient.useSession();
+
+  if (isPending) {
+    <ScrollerLoader />;
+  }
+
+  if (error || !session) {
+    console.log(error);
+    return (
+      <div className="w-full h-full flex items-center justify-center text-red-400">
+        Something went wrong!
+      </div>
+    );
+  }
 
   return (
     <>
@@ -46,7 +63,7 @@ export default function Sidebar() {
         <div className="w-20 h-20 rounded-full bg-gray-700 mx-auto mb-3 mt-10 md:mt-0"></div>
 
         <p className="text-white text-lg font-semibold text-center mb-6">
-          John Doe
+          {session.user.name}
         </p>
 
         <br />

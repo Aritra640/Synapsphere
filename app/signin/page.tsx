@@ -4,12 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth-client";
-import { redirect } from "next/navigation";
 
 export default function Signin() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
+ 
   async function handleSignin(e: any) {
     e.preventDefault();
 
@@ -18,12 +18,12 @@ export default function Signin() {
         email: email,
         password: password,
         rememberMe: true,
-        callbackURL: "/dashboard",
+        callbackURL: "/home/dashboard",
       },
       {
         onSuccess: () => {
           // redirect("/dashboard");
-          console.log("signin successfull!")
+          console.log("signin successfull!");
         },
 
         onError: (ctx) => {
