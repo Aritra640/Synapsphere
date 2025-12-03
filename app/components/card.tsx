@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UpdateCardModal } from "@/app/components/updateCardModal";
@@ -10,10 +10,16 @@ interface CardProps {
   Type: "Youtube" | "Tweet" | "Text" | "PDF";
   Title: string;
   Content: string;
-  CreatedAt: string; 
+  CreatedAt: string;
 }
 
-export default function Card({ id, Type, Title, Content, CreatedAt }: CardProps) {
+export default function Card({
+  id,
+  Type,
+  Title,
+  Content,
+  CreatedAt,
+}: CardProps) {
   const router = useRouter();
   const [updateOpen, setUpdateOpen] = useState(false);
   const title = Title;
@@ -84,8 +90,11 @@ export default function Card({ id, Type, Title, Content, CreatedAt }: CardProps)
   return (
     <>
       <div className="relative bg-black  border border-gray-800 rounded-xl p-4 shadow-lg hover:shadow-gray-700 transition-shadow duration-300 w-full max-w-md">
-
         <div className="absolute top-3 right-3 flex space-x-3">
+          <button aria-label="Preview" onClick={() => setUpdateOpen(true)}>
+            <Eye className="w-4 h-4 cursor-pointer text-gray-400 hover:text-blue-400 transition" />
+          </button>
+
           <button aria-label="Edit" onClick={() => setUpdateOpen(true)}>
             <Pencil className="w-4 h-4 cursor-pointer text-gray-400 hover:text-blue-400 transition" />
           </button>
@@ -118,4 +127,3 @@ export default function Card({ id, Type, Title, Content, CreatedAt }: CardProps)
     </>
   );
 }
-
